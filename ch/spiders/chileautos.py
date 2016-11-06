@@ -29,12 +29,8 @@ class ChileAutosScrapper(scrapy.Spider):
         data = {}
         next_is_price = False
         for auto in response.css('table.tablaauto.justificado tr'):
-            attr_name = auto.css(':nth-child(1) ::text').extract_first().strip()
-
-            try:
-                attr_value = auto.css(':nth-child(2) ::text').extract_first().strip()
-            except Exception:
-                pass
+            attr_name = get_attr_name(auto)
+            attr_value = get_attr_value(auto, attr_name)
 
             if next_is_price: # this one is price
                 data['Precio'] = attr_name
@@ -50,13 +46,32 @@ class ChileAutosScrapper(scrapy.Spider):
 
         yield data
 
+def get_attr_name(response):
+    return response.css(':nth-child(1) ::text').extract_first().strip()
 
-def get_value(attr):
-    for auto in response.css('table.tablaauto.justificado tr'):
-        if auto.css(':nth-child(1) ::text').extract_first() == attr:
-            return auto
 
-def get_value2(attr):
-    for auto in response.css('table.tablaauto.justificado tr'):
-        if auto.css(':nth-child(1) ::text').extract_first().strip().startswith('<b>'):
-            return auto
+def get_attr_value(response, attr_name=''):
+    attr_value = ''
+    try:
+        attr_value = response.css(':nth-child(2) ::text').extract_first().strip()
+    except Exception:
+        pass
+
+    if attr_value == attr_name:
+        try:
+            attr_value = response.css('.quiebre ::text').extract_first().strip()
+        except Exception:
+            pass
+
+    return attr_value
+
+
+# def get_value(attr):
+#     for auto in response.css('table.tablaauto.justificado tr'):
+#         if auto.css(':nth-child(1) ::text').extract_first() == attr:
+#             return auto
+
+# def get_value2(attr):
+#     for auto in response.css('table.tablaauto.justificado tr'):
+#         if auto.css(':nth-child(1) ::text').extract_first().strip().startswith('<b>'):
+#             return auto
