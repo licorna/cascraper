@@ -12,10 +12,10 @@ class ChileAutosScrapper(scrapy.Spider):
             yield scrapy.Request(response.urljoin(href),
                                  callback=self.parse_auto)
 
-        # next_page = response.css('a.nav#sig ::attr(href)').extract_first()
-        # if next_page:
-        #     yield scrapy.Request(response.urljoin(next_page),
-                                 # callback=self.parse)
+        next_page = response.css('a.nav#sig ::attr(href)').extract_first()
+        if next_page:
+            yield scrapy.Request(response.urljoin(next_page),
+                                 callback=self.parse)
 
     def parse_auto(self, response):
         interesting_attrs = ('Marca:', 'Modelo:', 'Patente:', 'Versión:', 'Año:',
