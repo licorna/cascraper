@@ -25,6 +25,7 @@ class ChileAutosScrapper(scrapy.Spider):
                              'Airbag', 'Unico Dueño', 'Cierre', 'Catalítico',
                              'Combustible', 'Llantas', 'Puertas', 'Alarma',
                              'Portal', 'Techo', 'Vende', 'Teléfono', 'Ciudad')
+        interesting_attrs = (unicode(attr) for attr in interesting_attrs)
 
         data = {}
         next_is_price = False
@@ -41,7 +42,7 @@ class ChileAutosScrapper(scrapy.Spider):
 
             # try to find one of the interesting attrs
             for attr in interesting_attrs:
-                if attr == attr_name:
+                if attr == unicode(attr_name):
                     data[attr] = attr_value
 
         yield data
