@@ -19,14 +19,34 @@ class ChileAutosScrapper(scrapy.Spider):
         #                          callback=self.parse)
 
     def parse_auto(self, response):
-        interesting_attrs = ('Marca:', 'Modelo:', 'Patente:', 'Versión:', 'Año:',
-                             'Tipo vehíc:', 'Carrocería:', 'Color', 'Kilometraje',
-                             'Cilindrada', 'Potencia', 'Transmisión', 'Dirección',
-                             'Aire', 'Radio', 'Alzavidrios', 'Espejos', 'Frenos',
-                             'Airbag', 'Unico Dueño', 'Cierre', 'Catalítico',
-                             'Combustible', 'Llantas', 'Puertas', 'Alarma',
-                             'Portal', 'Techo', 'Vende', 'Teléfono', 'Ciudad')
+        interesting_attrs = (
+            ('Marca:', 'brand', 'str'),
+            ('Modelo:', 'model', 'str'),
+            ('Patente:', 'plate', 'str'),
+            ('Versión:', 'submodel', 'str'),
+            ('Año', 'year', 'int'),
+            ('Tipo vehíc:', '_type', 'str'),
+            ('Carrocería:', 'chasis', 'str'),
+            ('Color:', 'color', 'str'),
+            ('Kilometraje', 'mileage', 'str'),
+            ('Cilindrada', 'engine_size', 'str'),
+            ('Potencia', 'power', 'str'),
+            ('Transmision', 'transmision', 'str'),
+            ('Dirección', 'handling', 'str'),
+            ('Aire', 'air', 'bool'),
+            ('Radio', 'radio', 'str'),
+            ('Alzavidrios', 'window', 'str'),
+            ('Espejos', 'mirrors', 'str'),
+            ('Frenos', 'brakes', 'str'))
+        # interesting_attrs = ('Marca:', 'Modelo:', 'Patente:', 'Versión:', 'Año:',
+        #                      'Tipo vehíc:', 'Carrocería:', 'Color', 'Kilometraje',
+        #                      'Cilindrada', 'Potencia', 'Transmisión', 'Dirección',
+        #                      'Aire', 'Radio', 'Alzavidrios', 'Espejos', 'Frenos',
+        #                      'Airbag', 'Unico Dueño', 'Cierre', 'Catalítico',
+        #                      'Combustible', 'Llantas', 'Puertas', 'Alarma',
+        #                      'Portal', 'Techo', 'Vende', 'Teléfono', 'Ciudad')
 
+        result = {}
         data = {}
         next_is_price = False
         for auto in response.css('table.tablaauto.justificado tr'):
@@ -41,14 +61,16 @@ class ChileAutosScrapper(scrapy.Spider):
                 next_is_price = True
 
             # try to find one of the interesting attrs
-            for attr in interesting_attrs:
-                if attr == attr_name:
-                    data[attr] = attr_value
+            name_value = get_value_with_type(attr_name, attr_value, interesting_attrs)
+            if name_value:
+                name, value = name_value
+                data[name] = value
 
-        data['url'] = response.url
-        data['main_image'] = response.css('img#imgp ::attr(src)').extract_first()
+        result['url'] = response.url
+        result['main_image'] = response.css('img#imgp ::attr(src)').extract_first()
+        result['data'] = data
 
-        yield data
+        yield result
 
 def get_attr_name(response):
     return response.css(':nth-child(1) ::text').extract_first().strip()
@@ -69,6 +91,24 @@ def get_attr_value(response, attr_name=''):
 
     return attr_value
 
+
+def get_value_with_type(source_attr_name, source_attr_value, interesting_attrs):
+    for _attr_name_orig, _attr_name, _type in interesting_attrs:
+        if source_attr_name == _attr_name_orig:
+            return (_attr_name, by_type(source_attr_value, _type))
+
+
+
+def by_type(value, _type):
+    if _type == 'int':
+        try:
+            return int(value)
+        except Exception:
+            return value
+    if _type == 'bool' and value is not None:
+        return value.strip().lower() in ['si', 's', 'y', 'yes']
+
+    return value
 
 
 # i'm using following functions to debug scrapy locally
