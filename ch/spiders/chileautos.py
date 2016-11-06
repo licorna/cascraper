@@ -13,16 +13,16 @@ class ChileAutosScrapper(scrapy.Spider):
                                  callback=self.parse_auto)
 
 
-        # next_page = response.css('a.nav#sig ::attr(href)').extract_first()
-        # if next_page:
-        #     yield scrapy.Request(response.urljoin(next_page),
-        #                          callback=self.parse)
+        next_page = response.css('a.nav#sig ::attr(href)').extract_first()
+        if next_page:
+            yield scrapy.Request(response.urljoin(next_page),
+                                 callback=self.parse)
 
     def parse_auto(self, response):
         interesting_attrs = (
             ('Marca:', 'brand', 'str'),
             ('Modelo:', 'model', 'str'),
-            ('Patente:', 'plate', 'str'),
+            ('Patente:', 'license_plate', 'str'),
             ('Versión:', 'submodel', 'str'),
             ('Año', 'year', 'int'),
             ('Tipo vehíc:', '_type', 'str'),
@@ -37,14 +37,20 @@ class ChileAutosScrapper(scrapy.Spider):
             ('Radio', 'radio', 'str'),
             ('Alzavidrios', 'window', 'str'),
             ('Espejos', 'mirrors', 'str'),
-            ('Frenos', 'brakes', 'str'))
-        # interesting_attrs = ('Marca:', 'Modelo:', 'Patente:', 'Versión:', 'Año:',
-        #                      'Tipo vehíc:', 'Carrocería:', 'Color', 'Kilometraje',
-        #                      'Cilindrada', 'Potencia', 'Transmisión', 'Dirección',
-        #                      'Aire', 'Radio', 'Alzavidrios', 'Espejos', 'Frenos',
-        #                      'Airbag', 'Unico Dueño', 'Cierre', 'Catalítico',
-        #                      'Combustible', 'Llantas', 'Puertas', 'Alarma',
-        #                      'Portal', 'Techo', 'Vende', 'Teléfono', 'Ciudad')
+            ('Frenos', 'brakes', 'str'),
+            ('Airbag', 'airbags', 'bool'),
+            ('Unico Dueño', 'unique_owner', 'bool'),
+            ('Cierre', 'closing', 'str'),
+            ('Catalítico', 'cathalitic', 'bool'),
+            ('Combustible', 'fuel', 'str'),
+            ('Llantas', 'rims', 'bool'),
+            ('Puertas', 'doors', 'int'),
+            ('Alarma', 'alarm', 'bool'),
+            ('Portal', 'website', 'str'),
+            ('Techo', 'roof', 'str'),
+            ('Vende', 'seller', 'str'),
+            ('Teléfono', 'phone_number', 'str'),
+            ('Ciudad', 'city', 'str'))
 
         result = {}
         data = {}
