@@ -9,13 +9,17 @@ class ChileAutosScrapper(scrapy.Spider):
     def parse(self, response):
         for auto in response.css('tr.des'):
             href = auto.css(':nth-child(2) a::attr(href)').extract_first()
-            yield scrapy.Request(response.urljoin(href),
-                                 callback=self.parse_auto)
+            data = scrapy.Request(response.urljoin(href),
+                                  callback=self.parse_auto)
+            yield {
+                'data': data,
+                'source': {'url': href},
+            }
 
-        next_page = response.css('a.nav#sig ::attr(href)').extract_first()
-        if next_page:
-            yield scrapy.Request(response.urljoin(next_page),
-                                 callback=self.parse)
+        # next_page = response.css('a.nav#sig ::attr(href)').extract_first()
+        # if next_page:
+        #     yield scrapy.Request(response.urljoin(next_page),
+        #                          callback=self.parse)
 
     def parse_auto(self, response):
         interesting_attrs = ('Marca:', 'Modelo:', 'Patente:', 'Versión:', 'Año:',
@@ -44,7 +48,7 @@ class ChileAutosScrapper(scrapy.Spider):
                 if attr == attr_name:
                     data[attr] = attr_value
 
-        yield data
+        return data
 
 def get_attr_name(response):
     return response.css(':nth-child(1) ::text').extract_first().strip()
@@ -66,6 +70,9 @@ def get_attr_value(response, attr_name=''):
     return attr_value
 
 
+
+# i'm using following functions to debug scrapy locally
+#
 # def get_value(attr):
 #     for auto in response.css('table.tablaauto.justificado tr'):
 #         if auto.css(':nth-child(1) ::text').extract_first() == attr:
