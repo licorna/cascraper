@@ -9,12 +9,9 @@ class ChileAutosScrapper(scrapy.Spider):
     def parse(self, response):
         for auto in response.css('tr.des'):
             href = auto.css(':nth-child(2) a::attr(href)').extract_first()
-            data = scrapy.Request(response.urljoin(href),
-                                  callback=self.parse_auto)
-            yield {
-                'data': data,
-                'source': {'url': href},
-            }
+            yield scrapy.Request(response.urljoin(href),
+                                 callback=self.parse_auto)
+
 
         # next_page = response.css('a.nav#sig ::attr(href)').extract_first()
         # if next_page:
@@ -48,7 +45,10 @@ class ChileAutosScrapper(scrapy.Spider):
                 if attr == attr_name:
                     data[attr] = attr_value
 
-        return data
+        data['url'] = response.url
+        data['main_image'] = response.css('img#imgp ::attr(src)').extract_first()
+
+        yield data
 
 def get_attr_name(response):
     return response.css(':nth-child(1) ::text').extract_first().strip()
