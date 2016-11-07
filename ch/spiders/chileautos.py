@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 import scrapy
 
+# Newer than 2014, more expensive than 10 million
+# start_urls = ['http://www.chileautos.cl/cemagic.asp?region=0&ciudad=0&tipo=Todos&carroceria=&maresp=0&modelo=&combustible=0&kilom=&c_otros=&cili=0&cilf=0&vendedor=0&ai=2013&af=2017&pi=10000000&pf=1000000000&fecha_ini=&fecha_fin=&disp=1&dea=25&pag=1&boton=4']
+
+# All of them... be careful with this request... maybe I'll be over quota
+start_urls = ['http://www.chileautos.cl/cemagic.asp?region=0&ciudad=0&tipo=Todos&carroceria=&maresp=0&modelo=&combustible=0&kilom=&c_otros=&cili=0&cilf=0&vendedor=0&ai=1920&af=2017&pi=0&pf=1000000000&fecha_ini=&fecha_fin=&disp=1&dea=100&pag=1&boton=4']
+
 
 class ChileAutosScrapper(scrapy.Spider):
     name = 'chileautosspider'
-    start_urls = ['http://www.chileautos.cl/cemagic.asp?region=0&ciudad=0&tipo=Todos&carroceria=&maresp=0&modelo=&combustible=0&kilom=&c_otros=&cili=0&cilf=0&vendedor=0&ai=2013&af=2017&pi=10000000&pf=1000000000&fecha_ini=&fecha_fin=&disp=1&dea=25&pag=1&boton=4']
+    start_urls = start_urls
 
     def parse(self, response):
         for auto in response.css('tr.des'):

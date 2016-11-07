@@ -1,3 +1,4 @@
 build/*
 */__pycache__/*
 project.egg-info/*
+ch/spiders/__pycache__/*
